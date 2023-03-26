@@ -1,0 +1,18 @@
+INSERT INTO topic VALUES (1, "自表格中選取欄位");
+INSERT INTO topic VALUES (2, "欄位的運算");
+INSERT INTO topic VALUES (3, "欄位的串接");
+INSERT INTO topic VALUES (4, "欄位的命名");
+INSERT INTO topic VALUES (5, "限制資料列");
+INSERT INTO topic VALUES (6, "單一條件的運算子");
+INSERT INTO topic VALUES (7, "結合多個單一條件的邏輯運算子");
+INSERT INTO topic VALUES (8, "運算子");
+INSERT INTO topic VALUES (9, "單元運算子");
+INSERT INTO topic VALUES (10, "二元運算子");
+INSERT INTO topic VALUES (11, "算術運算子");
+INSERT INTO topic VALUES (12, "Concatenation Operator");
+INSERT INTO topic VALUES (13, "比較運算子");
+INSERT INTO topic VALUES (14, "區間比較");
+INSERT INTO topic VALUES (15, "結合中的元素判斷");
+INSERT INTO topic VALUES (16, "樣式比對");
+INSERT INTO topic VALUES (17, "NULL值的判斷");
+INSERT INTO topic VALUES (18, "運算子的優先順序");

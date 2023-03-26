@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "name": "自表格中選取欄位",
+    "parentId": [2, 3, 4, 5]
+  },
+  {
+    "id": 2,
+    "name": "欄位的運算",
+    "parentId": null
+  },
+  {
+    "id": 3,
+    "name": "欄位的串接",
+    "parentId": null
+  },
+  {
+    "id": 4,
+    "name": "欄位的命名",
+    "parentId": null
+  },
+  {
+    "id": 5,
+    "name": "限制資料列",
+    "parentId": [6, 7]
+  },
+  {
+    "id": 6,
+    "name": "單一條件的運算子",
+    "parentId": null
+  },
+  {
+    "id": 7,
+    "name": "結合多個單一條件的邏輯運算子",
+    "parentId": null
+  },
+  {
+    "id": 8,
+    "name": "運算子",
+    "parentId": [9, 10]
+  },
+  {
+    "id": 9,
+    "name": "單元運算子",
+    "parentId": null
+  },
+  {
+    "id": 10,
+    "name": "二元運算子",
+    "parentId": [11, 12, 13, 14, 15, 16, 17]
+  },
+  {
+    "id": 11,
+    "name": "算術運算子",
+    "parentId": [2, 18]
+  },
+  {
+    "id": 12,
+    "name": "Concatenation Operator",
+    "parentId": [3, 18]
+  },
+  {
+    "id": 13,
+    "name": "比較運算子",
+    "parentId": [6, 18]
+  },
+  {
+    "id": 14,
+    "name": "區間比較",
+    "parentId": [18]
+  },
+  {
+    "id": 15,
+    "name": "結合中的元素判斷",
+    "parentId": [18]
+  },
+  {
+    "id": 16,
+    "name": "樣式比對",
+    "parentId": [18]
+  },
+  {
+    "id": 17,
+    "name": "NULL值的判斷",
+    "parentId": [18]
+  },
+  {
+    "id": 18,
+    "name": "運算子的優先順序",
+    "parentId": null
+  }
+]

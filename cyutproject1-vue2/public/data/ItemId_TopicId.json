@@ -1,0 +1,362 @@
+[
+  {
+    "itemId": 1,
+    "topicId": 1
+  },
+  {
+    "itemId": 2,
+    "topicId": 1
+  },
+  {
+    "itemId": 3,
+    "topicId": 1
+  },
+  {
+    "itemId": 4,
+    "topicId": 1
+  },
+  {
+    "itemId": 5,
+    "topicId": 1
+  },
+  {
+    "itemId": 6,
+    "topicId": 2
+  },
+  {
+    "itemId": 7,
+    "topicId": 2
+  },
+  {
+    "itemId": 8,
+    "topicId": 2
+  },
+  {
+    "itemId": 9,
+    "topicId": 2
+  },
+  {
+    "itemId": 10,
+    "topicId": 2
+  },
+  {
+    "itemId": 11,
+    "topicId": 3
+  },
+  {
+    "itemId": 12,
+    "topicId": 3
+  },
+  {
+    "itemId": 13,
+    "topicId": 3
+  },
+  {
+    "itemId": 14,
+    "topicId": 3
+  },
+  {
+    "itemId": 15,
+    "topicId": 3
+  },
+  {
+    "itemId": 16,
+    "topicId": 4
+  },
+  {
+    "itemId": 17,
+    "topicId": 4
+  },
+  {
+    "itemId": 18,
+    "topicId": 4
+  },
+  {
+    "itemId": 19,
+    "topicId": 4
+  },
+  {
+    "itemId": 20,
+    "topicId": 4
+  },
+  {
+    "itemId": 21,
+    "topicId": 5
+  },
+  {
+    "itemId": 22,
+    "topicId": 5
+  },
+  {
+    "itemId": 23,
+    "topicId": 5
+  },
+  {
+    "itemId": 24,
+    "topicId": 5
+  },
+  {
+    "itemId": 25,
+    "topicId": 5
+  },
+  {
+    "itemId": 26,
+    "topicId": 6
+  },
+  {
+    "itemId": 27,
+    "topicId": 6
+  },
+  {
+    "itemId": 28,
+    "topicId": 6
+  },
+  {
+    "itemId": 29,
+    "topicId": 6
+  },
+  {
+    "itemId": 30,
+    "topicId": 6
+  },
+  {
+    "itemId": 31,
+    "topicId": 7
+  },
+  {
+    "itemId": 32,
+    "topicId": 7
+  },
+  {
+    "itemId": 33,
+    "topicId": 7
+  },
+  {
+    "itemId": 34,
+    "topicId": 7
+  },
+  {
+    "itemId": 35,
+    "topicId": 7
+  },
+  {
+    "itemId": 36,
+    "topicId": 8
+  },
+  {
+    "itemId": 37,
+    "topicId": 8
+  },
+  {
+    "itemId": 38,
+    "topicId": 8
+  },
+  {
+    "itemId": 39,
+    "topicId": 8
+  },
+  {
+    "itemId": 40,
+    "topicId": 8
+  },
+  {
+    "itemId": 41,
+    "topicId": 9
+  },
+  {
+    "itemId": 42,
+    "topicId": 9
+  },
+  {
+    "itemId": 43,
+    "topicId": 9
+  },
+  {
+    "itemId": 44,
+    "topicId": 9
+  },
+  {
+    "itemId": 45,
+    "topicId": 9
+  },
+  {
+    "itemId": 46,
+    "topicId": 10
+  },
+  {
+    "itemId": 47,
+    "topicId": 10
+  },
+  {
+    "itemId": 48,
+    "topicId": 10
+  },
+  {
+    "itemId": 49,
+    "topicId": 10
+  },
+  {
+    "itemId": 50,
+    "topicId": 10
+  },
+  {
+    "itemId": 51,
+    "topicId": 11
+  },
+  {
+    "itemId": 52,
+    "topicId": 11
+  },
+  {
+    "itemId": 53,
+    "topicId": 11
+  },
+  {
+    "itemId": 54,
+    "topicId": 11
+  },
+  {
+    "itemId": 55,
+    "topicId": 11
+  },
+  {
+    "itemId": 56,
+    "topicId": 12
+  },
+  {
+    "itemId": 57,
+    "topicId": 12
+  },
+  {
+    "itemId": 58,
+    "topicId": 12
+  },
+  {
+    "itemId": 59,
+    "topicId": 12
+  },
+  {
+    "itemId": 60,
+    "topicId": 12
+  },
+  {
+    "itemId": 61,
+    "topicId": 13
+  },
+  {
+    "itemId": 62,
+    "topicId": 13
+  },
+  {
+    "itemId": 63,
+    "topicId": 13
+  },
+  {
+    "itemId": 64,
+    "topicId": 13
+  },
+  {
+    "itemId": 65,
+    "topicId": 13
+  },
+  {
+    "itemId": 66,
+    "topicId": 14
+  },
+  {
+    "itemId": 67,
+    "topicId": 14
+  },
+  {
+    "itemId": 68,
+    "topicId": 14
+  },
+  {
+    "itemId": 69,
+    "topicId": 14
+  },
+  {
+    "itemId": 70,
+    "topicId": 14
+  },
+  {
+    "itemId": 71,
+    "topicId": 15
+  },
+  {
+    "itemId": 72,
+    "topicId": 15
+  },
+  {
+    "itemId": 73,
+    "topicId": 15
+  },
+  {
+    "itemId": 74,
+    "topicId": 15
+  },
+  {
+    "itemId": 75,
+    "topicId": 15
+  },
+  {
+    "itemId": 76,
+    "topicId": 16
+  },
+  {
+    "itemId": 77,
+    "topicId": 16
+  },
+  {
+    "itemId": 78,
+    "topicId": 16
+  },
+  {
+    "itemId": 79,
+    "topicId": 16
+  },
+  {
+    "itemId": 80,
+    "topicId": 16
+  },
+  {
+    "itemId": 81,
+    "topicId": 17
+  },
+  {
+    "itemId": 82,
+    "topicId": 17
+  },
+  {
+    "itemId": 83,
+    "topicId": 17
+  },
+  {
+    "itemId": 84,
+    "topicId": 17
+  },
+  {
+    "itemId": 85,
+    "topicId": 17
+  },
+  {
+    "itemId": 86,
+    "topicId": 18
+  },
+  {
+    "itemId": 87,
+    "topicId": 18
+  },
+  {
+    "itemId": 88,
+    "topicId": 18
+  },
+  {
+    "itemId": 89,
+    "topicId": 18
+  },
+  {
+    "itemId": 90,
+    "topicId": 18
+  }
+]

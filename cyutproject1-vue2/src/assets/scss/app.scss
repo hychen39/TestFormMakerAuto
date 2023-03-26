@@ -1,0 +1,20 @@
+.topic-tree-hover {
+    background-color: rgba(238, 238, 238, 1);
+}
+.theme--light, .theme--dark {
+    .v-bar--underline {
+        border-width: 0 0 thin 0;
+        border-style: solid;
+
+        &.theme--light {
+            border-bottom-color: #0000001F !important
+        }
+
+        &.theme--dark {
+            border-bottom-color: #FFFFFF1F !important
+        }
+    }
+}
+.v-chip.disabled-hover:hover:before {
+    opacity: 0 !important;
+}

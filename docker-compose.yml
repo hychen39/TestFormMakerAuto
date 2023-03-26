@@ -1,0 +1,58 @@
+# Docker Compose File Reference (https://docs.docker.com/compose/compose-file/)
+# Version Reference (https://docs.docker.com/compose/compose-file/compose-versioning/)
+version: '3.8'
+
+services:
+  api:
+    container_name: api
+    build:
+      context: cyutproject1-spring_boot
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    restart: always
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/DB_NAME
+      SPRING_DATASOURCE_USERNAME: DB_USER_NAME
+      SPRING_DATASOURCE_PASSWORD: DB_USER_PASSWORD
+    networks:
+      - web
+      - db
+
+  web:
+    build:
+      context: cyutproject1-vue2
+      dockerfile: Dockerfile
+      args:
+        VUE_APP_SPRING_BOOT_REST_API: http://localhost/api/
+        VUE_APP_AUTOPAPER_MINIMUM_ITEMS: 5
+    ports:
+      - "80:80"
+    restart: always
+    depends_on:
+      - api
+    networks:
+      - web
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      MYSQL_DATABASE: DB_NAME
+      MYSQL_USER: DB_USER_NAME
+      MYSQL_PASSWORD: DB_USER_PASSWORD
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - db
+volumes:
+  db-data:
+
+networks:
+  web:
+  db:
