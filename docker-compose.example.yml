@@ -1,0 +1,55 @@
+# Docker Compose File Reference (https://docs.docker.com/compose/compose-file/)
+# Version Reference (https://docs.docker.com/compose/compose-file/compose-versioning/)
+version: '3.8'
+
+services:
+  api:
+    image: testformmaker/test-form-maker-api
+    ports:
+      - "8000:8000"
+    restart: always
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/DB_NAME
+      SPRING_DATASOURCE_USERNAME: DB_USERNAME
+      SPRING_DATASOURCE_PASSWORD: DB_PASSWORD
+    networks:
+      - web
+      - db
+
+  web:
+    image: testformmaker/test-form-maker-website
+    environment:
+      # Default username is admin
+      ADMIN_USERNAME: admin
+      # Default password is PASSWORD
+      ADMIN_PASSWORD: Test
+    ports:
+      - "80:80"
+    restart: always
+    depends_on:
+      - api
+    networks:
+      - web
+
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      MYSQL_DATABASE: DB_NAME
+      MYSQL_USER: DB_USERNAME
+      MYSQL_PASSWORD: DB_PASSWORD
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - db
+volumes:
+  db-data:
+
+networks:
+  web:
+  db:

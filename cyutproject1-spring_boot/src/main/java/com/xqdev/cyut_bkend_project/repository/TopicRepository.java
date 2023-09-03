@@ -67,10 +67,13 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
     /**
      * 找出 topic 下的 item count
      * 使用 Spring JPA 的 interface projection 技術
+     * query 回傳的 column 名稱要和 interface 的欄位名稱一致
      * Ref: https://medium.com/swlh/spring-data-jpa-projection-support-for-native-queries-a13cd88ec166
      * Ref: https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#projections
      * @param courseId
      * @return
+     *
+     * @see {@link ItemCountsOfTopics}
      */
     @Query(value = "with topic_item_count as ( " +
             "select t.id as topic_id, t.parent_id as parent_id, count(i.id)  as item_count " +

@@ -1,0 +1,50 @@
+name: Build Docker Images
+
+on:
+  push:
+    tags:
+      - '**'
+
+jobs:
+  build:
+    if: "github.event.repository.name == 'TestFormMakerAuto'"
+    name: Build the Docker images
+    # Login against a Docker registry except on PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build API image and push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          context: ./cyutproject1-spring_boot
+          push: true
+          tags: |
+            testformmaker/test-form-maker-api:latest
+            testformmaker/test-form-maker-api:${{ github.ref_name }}
+
+      - name: Image API digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+      - name: Build Website image and push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          context: ./cyutproject1-vue2
+          push: true
+          tags: |
+            testformmaker/test-form-maker-website:latest
+            testformmaker/test-form-maker-website:${{ github.ref_name }}
+
+      - name: Image Website digest
+        run: echo ${{ steps.docker_build.outputs.digest }}

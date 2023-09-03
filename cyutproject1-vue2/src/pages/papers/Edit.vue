@@ -120,6 +120,7 @@
                         v-bind="attrs"
                         v-on="on"
                         :disabled="form && form.items.length === 0"
+                        :loading="exporting"
                       >
                         {{ $t("papers.Export Quiz Paper") }}
                       </v-btn>
@@ -145,6 +146,7 @@
                         v-bind="attrs"
                         v-on="on"
                         :disabled="form && form.items.length === 0"
+                        :loading="exporting"
                       >
                         {{ $t("papers.Export Answer Paper") }}
                       </v-btn>
@@ -271,6 +273,7 @@ export default {
       deleteItemConfirmation: false,
       deletePaperConfirmation: false,
       deletePaperLoading: false,
+      exporting: false,
     };
   },
   computed: {
@@ -348,45 +351,80 @@ export default {
         this.deletePaperLoading = false;
       }
     },
-    exportQuestionPaper(type) {
-      const data = collect(this.form.items)
-        .pluck("content")
-        .map((content) => {
-          return content.split("### Ans:")[0];
-        });
+    preFetchItemContent() {
+      return new Promise((resolve) => {
+        const jobs = this.form.items.map(
+          async (item) =>
+            await this.onPreviewItem({
+              item,
+              value: true,
+            })
+        );
 
-      switch (type) {
-        case "html":
-          fileDownloader(
-            converter.makeHtml(data.join("\r\n")),
-            `${this.form.title}.html`
-          );
-          return;
-        case "md":
-          fileDownloader(data.join("\r\n"), `${this.form.title}.md`);
-          return;
-      }
-
-      bus.$emit("alert-message", {
-        type: "error",
-        message: this.$t("papers.Unknown type") + `: ${type}`,
+        Promise.all(jobs).then(() => resolve());
       });
     },
-    exportQuestionAndAnswer(type) {
-      const data = collect(this.form.items).pluck("content").join("\r\n");
+    async exportQuestionPaper(type) {
+      try {
+        this.exporting = true;
+        await this.preFetchItemContent();
+        const data = collect(this.form.items)
+          .pluck("content")
+          .map((content) => {
+            return content.split("### Ans:")[0];
+          });
 
-      switch (type) {
-        case "html":
-          fileDownloader(converter.makeHtml(data), `${this.form.title}.html`);
-          return;
-        case "md":
-          fileDownloader(data, `${this.form.title}.md`);
-          return;
+        switch (type) {
+          case "html":
+            fileDownloader(
+              converter.makeHtml(data.join("\r\n")),
+              `${this.form.title}.html`
+            );
+            return;
+          case "md":
+            fileDownloader(data.join("\r\n"), `${this.form.title}.md`);
+            return;
+        }
+
+        bus.$emit("alert-message", {
+          type: "error",
+          message: this.$t("papers.Unknown type") + `: ${type}`,
+        });
+      } catch (e) {
+        bus.$emit("alert-message", {
+          type: "error",
+          message: e.message,
+        });
+      } finally {
+        this.exporting = false;
       }
-      bus.$emit("alert-message", {
-        type: "error",
-        message: this.$t("papers.Unknown type") + `: ${type}`,
-      });
+    },
+    async exportQuestionAndAnswer(type) {
+      try {
+        this.exporting = true;
+        await this.preFetchItemContent();
+        const data = collect(this.form.items).pluck("content").join("\r\n");
+
+        switch (type) {
+          case "html":
+            fileDownloader(converter.makeHtml(data), `${this.form.title}.html`);
+            return;
+          case "md":
+            fileDownloader(data, `${this.form.title}.md`);
+            return;
+        }
+        bus.$emit("alert-message", {
+          type: "error",
+          message: this.$t("papers.Unknown type") + `: ${type}`,
+        });
+      } catch (e) {
+        bus.$emit("alert-message", {
+          type: "error",
+          message: e.message,
+        });
+      } finally {
+        this.exporting = false;
+      }
     },
     onRowClick(item) {
       const index = this.expanded.indexOf(item);

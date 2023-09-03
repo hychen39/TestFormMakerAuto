@@ -7,6 +7,7 @@
     "Export to HTML": "Export to HTML",
     "Export to Markdown": "Export to Markdown",
     "List": "List",
+    "No data available": "No data available",
     "Search": "Search",
     "Submit": "Submit",
     "Topics": {
@@ -94,14 +95,24 @@
             "topMenu": "Items"
         },
         "import": {
+            "All Items Passed Validation": "All Items Passed Validation",
             "Count of images uploaded incorrect": "Count of images uploaded incorrect.",
+            "Delete All": "Delete All",
             "Fetch Items": "Fetch Items",
             "Import Items": "Import Items",
             "Included Images": "Included Images",
+            "Missing Correct Answer": "Missing Correct Answer",
+            "Missing Images": "Missing Images",
+            "Question Number is missing": "Question Number is missing",
+            "Show All Items": "Show All Items",
             "Upload": "Upload items",
+            "Upload File": "Upload File",
             "Upload Images": "Uploaded Images",
+            "Upload Status": "Upload Status",
             "Uploaded successfully": "Upload successfully.",
             "Uploads": "Uploaded Items",
+            "Valid Content Format": "Valid Content Format",
+            "Valid Images": "Valid Images",
             "topMenu": "Item Import"
         },
         "maxInfoTheta": "θ_max",
@@ -125,6 +136,12 @@
         "Search Course": "Search Course"
     },
     "list": "list",
+    "pagination": {
+        "Of": "of",
+        "Records": "records",
+        "Showing": "Showing",
+        "To": "to"
+    },
     "papers": {
         "Actions": "Actions",
         "Add Question": "Add Question",

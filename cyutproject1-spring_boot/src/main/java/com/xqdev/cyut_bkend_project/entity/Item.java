@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.lang.reflect.Field;
 import java.util.List;
 
 @Entity
@@ -75,19 +76,30 @@ public class Item {
 
     /**
      * Update the fields of the item except the id field(PK)
+     * Only not null fields in the newItem will be used to update the existing item.
+     * Use the reflection technique to update the fields.
      * @param newItem
      * @return
      */
-    public void update(Item newItem){
-        this.questionNumber = newItem.getQuestionNumber();
-        this.title = newItem.getTitle();
-        this.content = newItem.getContent();
-        this.a = newItem.getA();
-        this.b = newItem.getB();
-        this.c = newItem.getC();
-        this.maxInfoTheta = newItem.getMaxInfoTheta();
-        this.topics = newItem.getTopics();
-        this.courseId = newItem.getCourseId();
+    public Item update(Item newItem) throws IllegalAccessException {
+        Class itemClass = this.getClass();
+        Field [] fields = itemClass.getDeclaredFields();
+        for (Field f: fields){
+            if ("id".equals(f.getName())) continue;
+            if (f.get(newItem) != null){
+                f.set(this, f.get(newItem));
+            }
+        }
+        return this;
+//        this.questionNumber = newItem.getQuestionNumber();
+//        this.title = newItem.getTitle();
+//        this.content = newItem.getContent();
+//        this.a = newItem.getA();
+//        this.b = newItem.getB();
+//        this.c = newItem.getC();
+//        this.maxInfoTheta = newItem.getMaxInfoTheta();
+//        this.topics = newItem.getTopics();
+//        this.courseId = newItem.getCourseId();
     }
 
     public Item(Long id,

@@ -222,7 +222,7 @@ export default {
       upper_target: 0.9,
       decimal: 3,
       setP: 0.01,
-      minimum_items: parseInt(process.env.VUE_APP_AUTOPAPER_MINIMUM_ITEMS, 10),
+      minimum_items: window.AUTOPAPER_MINIMUM_ITEM,
       step: 0,
       pickedItems: [],
       bestRate: null,

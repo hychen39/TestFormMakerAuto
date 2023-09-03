@@ -179,35 +179,54 @@ public class TopicController {
     }
 
     /**
-     * TODO: Modify according to issue #105
+     * DONE: Modify according to issue #105
      * 找出某個 topic 下的所由 item。 Request Body 中提供排除的項目。
      * Query parameter: ?itemsPerPage=15&page=1&search=
      * @param topic_id
      * @param excludeItemList
      * @param itemsPerPage
      * @param page
-     * @param search 尚未實作此參數
-     * @return
+     * @param search 搜尋字詞。
+     * @return CustomResponse<List<ItemEmptyQuesCont_I>> 回傳的 item 中 content 欄位為空，
+     *  需要另外 call 再取得 content 的內容。
      */
     @PostMapping("/topic/{topic_id}/items")
-    public CustomResponse<List<Item>> findItemsByTopic(@PathVariable Long topic_id,
+    public CustomResponse<List<ItemEmptyQuesCont_I>> findItemsByTopic(@PathVariable Long topic_id,
                                                        @RequestBody ExcludeItemList excludeItemList,
                                                        @RequestParam int itemsPerPage,
                                                        @RequestParam int page,
                                                        @RequestParam(required = false) String search){
 
         Pageable pageable = PageRequest.of(page - 1, itemsPerPage);
-        // TODO:
+        // DONE: Test
+        // Page<Item> pageItems = null;
+        Page<ItemEmptyQuesCont_I> pageItemsEmptyContent = null;
+        if (search == null || search.isEmpty()) {
+            // no search term case
+            pageItemsEmptyContent = topicService.findItemByTopic(topic_id, excludeItemList, pageable);
+        } else {
+            // with the search term
+            if (excludeItemList == null || excludeItemList.getExcept().isEmpty()) {
+                // no excluded item list
+                pageItemsEmptyContent = itemService
+                    .getItemRepository()
+                    .findItemEmptyQCByTopicID(topic_id, search, pageable);}
+            else {
+                // find with topic_id, search term, and the excluded list.
+                // DONE: Create the method and write it sql
+                pageItemsEmptyContent = itemService
+                        .getItemRepository()
+                        .findItemEmptyQCByTopicID(topic_id, excludeItemList.getExcept(), search, pageable);
+            }
+        }
 
-        Page<Item> pageItems = topicService.findItemByTopic(topic_id, excludeItemList, pageable);
-
-        CustomResponse<List<Item>> customResponse = new CustomResponse<>();
-        customResponse.setData(pageItems.getContent());
+        CustomResponse<List<ItemEmptyQuesCont_I>> customResponse = new CustomResponse<>();
+        customResponse.setData(pageItemsEmptyContent.getContent());
         Pagination pagination = new Pagination(
-                pageItems.getTotalElements(),
-                pageItems.getTotalPages(),
-                pageItems.getSize(),
-                pageItems.getNumber() + 1
+                pageItemsEmptyContent.getTotalElements(),
+                pageItemsEmptyContent.getTotalPages(),
+                pageItemsEmptyContent.getSize(),
+                pageItemsEmptyContent.getNumber() + 1
         );
         customResponse.setPagination(pagination);
         return customResponse;

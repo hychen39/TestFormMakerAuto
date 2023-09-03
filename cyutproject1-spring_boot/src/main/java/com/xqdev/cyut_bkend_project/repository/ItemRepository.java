@@ -2,6 +2,7 @@ package com.xqdev.cyut_bkend_project.repository;
 
 import com.xqdev.cyut_bkend_project.entity.Item;
 import com.xqdev.cyut_bkend_project.entity.ItemEmptyQuesCont;
+import com.xqdev.cyut_bkend_project.entity.ItemEmptyQuesCont_I;
 import com.xqdev.cyut_bkend_project.entity.Topic;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,12 +32,53 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @Query("select new com.xqdev.cyut_bkend_project.entity.ItemEmptyQuesCont(" +
             "i.id, i.questionNumber, i.title, i.a, i.b, i.c, i.maxInfoTheta, i.courseId) " +
-            "from Item i " +
-            "where i.courseId = :course_id and " +
-            "(i.title like %:search_term% or i.content like %:search_term%)")
-    Page<ItemEmptyQuesCont> findItemsByCourseIdAndContentContaining(@Param("course_id") Long courseId,
-                                                       @Param("search_term") String searchTerm,
-                                                       Pageable pageable);
+            "from Item i where i.courseId = :course_id and i.topics is empty ")
+    Page<ItemEmptyQuesCont> findItemsByCourseIdEmptyTopic(@Param("course_id") Long courseId, Pageable pageable);
+
+    /**
+     * 使用 Native query + interface projection
+     * @param courseId
+     * @param searchTerm
+     * @param pageable
+     * @return
+     */
+    @Query(value = "select " +
+            "id, question_number as questionNumber, title, a, b, c, max_info_theta as maxInfoTheta, course_id as courseId " +
+            "from (select id, question_number, title, regexp_replace(content, '\\\\!\\\\[\\\\]\\\\(.+\\\\)|<img .+/>', 'img_placeholder') as content," +
+            " a, b, c, max_info_theta, course_id from item) i " +
+            "where i.course_id = :course_id and " +
+            "(i.title like :search_term or " +
+            " i.content like :search_term )",
+            countQuery = "select count(*) from (select id, question_number, title, regexp_replace(content, '\\\\!\\\\[\\\\]\\\\(.+\\\\)|<img .+/>', 'img_placeholder') as content," +
+            " a, b, c, max_info_theta, course_id from item) i " +
+                    "where i.course_id = :course_id and " +
+                    " (i.title like :search_term or " +
+                    "   i.content like :search_term" +
+                    " )",
+            nativeQuery = true)
+    Page<ItemEmptyQuesCont_I> findItemsByCourseIdAndContentContaining(@Param("course_id") Long courseId,
+                                                                      @Param("search_term") String searchTerm,
+                                                                      Pageable pageable);
+    @Query(value = "select " +
+            "id, question_number as questionNumber, title, a, b, c, max_info_theta as maxInfoTheta, course_id as courseId " +
+            "from (select id, question_number, title, regexp_replace(content, '\\\\!\\\\[\\\\]\\\\(.+\\\\)|<img .+/>', 'img_placeholder') as content," +
+            " a, b, c, max_info_theta, course_id from item " +
+            " where not exists( select topic_id from item_topic it where it.topic_id = item.id) ) i " +
+            " where i.course_id = :course_id and " +
+            "(i.title like :search_term or " +
+            " i.content like :search_term )",
+            countQuery = "select count(*) " +
+                    " from (select id, question_number, title, regexp_replace(content, '\\\\!\\\\[\\\\]\\\\(.+\\\\)|<img .+/>', 'img_placeholder') as content," +
+                    " a, b, c, max_info_theta, course_id from item " +
+                    " where not exists( select topic_id from item_topic it where it.topic_id = item.id) ) i " +
+                    " where i.course_id = :course_id and " +
+                    " (i.title like :search_term or " +
+                    "   i.content like :search_term" +
+                    " )",
+            nativeQuery = true)
+    Page<ItemEmptyQuesCont_I> findItemsByCourseIdAndContentContainingEmptyTopic(@Param("course_id") Long courseId,
+                                                                      @Param("search_term") String searchTerm,
+                                                                      Pageable pageable);
 
     List<Item> findByCourseIdAndQuestionNumber(Long courseId, String quesNum);
 
@@ -93,11 +135,71 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "from Item i join i.topics t where (t.id = :topic_id or t.parentId = :topic_id) ",
             countQuery = "select count(distinct  i.id) " +
                     "from Item i join i.topics t where (t.id = :topic_id or t.parentId = :topic_id)")
-    Page<ItemEmptyQuesCont> findItemEmptyQCByTopicID(@Param("topic_id") Long topicID, Pageable pageable);
+    Page<ItemEmptyQuesCont_I> findItemEmptyQCByTopicID(@Param("topic_id") Long topicID, Pageable pageable);
+
+    /**
+     * TODO: 待測試
+     * 依 courseID 及 TopicID 及 Search term 找 Item. TopicID 可能是 Child topic 或者 Parent topic.
+     *
+     * Create the view before use the function:
+     * create or replace view item_no_content as (
+     * select id, question_number, title, regexp_replace(content, '!\\[\\]\\(.+\\)|<img .+/>', 'img_placeholder') as content,
+     *        a, b, c, max_info_theta, course_id from item
+     *                                           );
+     * @param topicID
+     * @param search
+     * @param pageable
+     * @return
+     */
+    @Query(value = "select id, question_number as questionNumber, title, a, b, c, " +
+            "           max_info_theta as maxInfoTheta, course_id as courseId from item_no_content " +
+            " where id in (select it.item_id from item_topic it join topic t on t.id = it.topic_id " +
+            "             where (t.id = :topic_id or t.parent_id = :topic_id) ) " +
+            "    and (title like :search or content like :search)",
+            countQuery = "select count(*) from ( " +
+                    "  select id, question_number, title, a, b, c, max_info_theta, course_id from item_no_content " +
+                    "       where id in (select it.item_id from item_topic it join topic t on t.id = it.topic_id " +
+                    "                          where (t.id = :topic_id or t.parent_id = :topic_id)) " +
+                    "                          and (title like :search or content like :search) " +
+                    "                     )",
+            nativeQuery = true)
+    Page<ItemEmptyQuesCont_I> findItemEmptyQCByTopicID(@Param("topic_id") Long topicID,
+                                                       @Param("search") String search,
+                                                       Pageable pageable);
+
+    /**
+     * TODO: 待測試
+     * Find items by given a topic id, excluded item list, search term.
+     *
+     * @param topicID
+     * @param excludeItemList 提供要排除的 item 的 ID 清單。
+     * @param search
+     * @param pageable
+     * @return
+     */
+    @Query(value= "select id, question_number as questionNumber, title, a, b, c, " +
+            "           max_info_theta as maxInfoTheta, course_id as courseId from item_no_content " +
+            "            where id in (select it.item_id from item_topic it join topic t on t.id = it.topic_id " +
+            "                         where (t.id = :topic_id or t.parent_id = :topic_id) " +
+            "                            and it.item_id not in (:exclude_item_list) ) " +
+            "                and (title like :search or content like :search) ",
+            countQuery = "select count(*) from ( " +
+                    "                         select id, question_number, title, a, b, c, max_info_theta, course_id from item_no_content " +
+                    "                         where id in (select it.item_id from item_topic it join topic t on t.id = it.topic_id " +
+                    "                                      where (t.id = :topic_id or t.parent_id = :topic_id) " +
+                    "                                        and it.item_id not in (:exclude_item_list) ) " +
+                    "                           and (title like :search or content like :search) " +
+                    "                     ) ds",
+            nativeQuery = true)
+    Page<ItemEmptyQuesCont_I> findItemEmptyQCByTopicID(@Param("topic_id") Long topicID,
+                                                       @Param("exclude_item_list") List<Long> excludeItemList,
+                                                       @Param("search") String search,
+                                                       Pageable pageable);
 
     /**
      * 依 courseID 及 TopicID 找 Item. TopicID 可能是 Child topic 或者 Parent topic.
      * 提供要排除的 item 的 ID 清單。
+     * QC: Question Content
      * @param topicID
      * @param excludeItemList
      * @param pageable
@@ -111,7 +213,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             countQuery = "select count(distinct  i.id) " +
                     "from Item i join i.topics t " +
                     "where i.id not in (:exclude_item_list) and (t.id = :topic_id or t.parentId = :topic_id)")
-    Page<ItemEmptyQuesCont> findItemEmptyQCByTopicID(@Param("topic_id") Long topicID,
+    Page<ItemEmptyQuesCont_I> findItemEmptyQCByTopicID(@Param("topic_id") Long topicID,
                                                      @Param("exclude_item_list") List<Long> excludeItemList,
                                                      Pageable pageable);
 

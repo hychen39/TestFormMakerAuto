@@ -91,12 +91,13 @@ public class TopicJdbcRepo {
     }
 
     /**
-     * TODO: Refator. 查詢時只要取得 item_id. 之後到 Topic Service 再用 item_id 取得完整的 item.
+     *
      * @param topic_id
      * @param excludeItemList 排外清單
      * @param pageable
      * @return
-     * @deprecated since 2023/03/15. 建議改用
+     * @deprecated
+     *  since 2023/03/15. 建議改用
      * {@link com.xqdev.cyut_bkend_project.service.TopicService#findItemByTopic(Long, TopicController.ExcludeItemList, Pageable)}
      */
     public Page<Item> findItemsByTopic(Long topic_id, List<Long> excludeItemList, Pageable pageable){
@@ -150,7 +151,8 @@ public class TopicJdbcRepo {
      * @param excludeItemList 排外清單
      * @param pageable
      * @return
-     * @deprecated since 2023/1/13. 此方法回傳 Item 中的 Topic 為 Null .請改用方法: {@link ItemRepository#findByTopic(Long, Long, Pageable)} 或者
+     * @deprecated
+     *   since 2023/1/13. 此方法回傳 Item 中的 Topic 為 Null .請改用方法: {@link ItemRepository#findByTopic(Long, Long, Pageable)} 或者
      *  {@link ItemRepository#findByTopic(Long, Long, List, Pageable)}
      */
     public Page<Item> findItemsByCourseAndTopic(Long courseId, Long topic_id, List<Long> excludeItemList, Pageable pageable){

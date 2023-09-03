@@ -39,11 +39,12 @@
         </v-btn>
       </v-app-bar>
       <v-card-text>
-        <v-row>
+        <v-row no-gutters>
           <v-slide-x-transition hide-on-leave>
             <v-col
               v-show="showTreeViewCategory"
-              cols="4"
+              cols="12"
+              sm="4"
               style="max-height: calc(100vh - 188px); overflow-y: auto"
             >
               <div class="d-flex">
@@ -59,54 +60,103 @@
               </topic-treeview>
             </v-col>
           </v-slide-x-transition>
-          <v-col>
-            <v-data-table
-              show-expand
-              item-key="questionNumber"
-              :headers="headers"
-              :items="mapItems"
+          <v-col cols="12" sm="8">
+            <DataTable
+              ref="dataTable"
+              class="p-datatable-sm"
+              :value="mapItems"
+              :rows.sync="dataTablePagination.itemsPerPage"
+              :totalRecords="totalItems"
               :loading="loading"
-              :options.sync="itemPagination"
-              :items-per-page="10"
-              :server-items-length="totalItems"
-              :expanded.sync="expanded"
-              expand-icon="mdi-eye"
-              :footer-props="{ 'items-per-page-options': [10, 50, 100, -1] }"
-              hide-default-header
-              @item-expanded="onPreviewItem"
+              :rowsPerPageOptions="[10, 50, 100]"
+              :expandedRows.sync="expanded"
+              :resizableColumns="true"
+              columnResizeMode="fit"
+              responsiveLayout="scroll"
+              paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+              :currentPageReportTemplate="currentPageReportTemplate"
+              showGridlines
+              lazy
+              paginator
+              removableSort
+              @page="onPage($event)"
+              @sort="onSort($event)"
+              @row-expand="previewItemOnPrimeVueTable"
             >
-              <template v-slot:header="{ props }">
-                <client-sort-data-table
-                  :props="props"
-                  :sort-by.sync="sortBy"
-                  :sort-desc.sync="sortDesc"
-                >
-                </client-sort-data-table>
-              </template>
-              <template v-slot:item.actions="{ item }">
-                <v-btn
-                  icon
-                  :to="{
-                    name: 'items.edit',
-                    params: { questionNumber: item.questionNumber },
-                  }"
-                >
-                  <v-icon> mdi-pencil </v-icon>
-                </v-btn>
-              </template>
-
-              <template v-slot:expanded-item="{ headers, item }">
-                <td :colspan="headers.length">
-                  <v-progress-linear v-if="!item.previewLoaded" indeterminate>
+              <Column :expander="true" :style="{ width: '5%' }" />
+              <Column
+                field="questionNumber"
+                :header="$t('items.ID')"
+                :sortable="true"
+                :style="{ width: '10%' }"
+              ></Column>
+              <Column
+                field="title"
+                :header="$t('items.Title')"
+                :sortable="true"
+                :style="{ width: '60%' }"
+              >
+                <template v-slot:body="{ data }">
+                  <div class="text-break text-wrap">
+                    {{ data.title }}
+                  </div>
+                </template>
+              </Column>
+              <Column
+                field="a"
+                header="a"
+                :sortable="true"
+                :style="{ width: '5%' }"
+              ></Column>
+              <Column
+                field="b"
+                header="b"
+                :sortable="true"
+                :style="{ width: '5%' }"
+              ></Column>
+              <Column
+                field="c"
+                header="c"
+                :sortable="true"
+                :style="{ width: '5%' }"
+              ></Column>
+              <Column
+                field="maxInfoTheta"
+                header="θ_max"
+                :sortable="true"
+                :style="{ width: '5%' }"
+              ></Column>
+              <Column :header="$t('items.Actions')" :style="{ width: '5%' }">
+                <template v-slot:body="{ data }">
+                  <v-btn
+                    icon
+                    :to="{
+                      name: 'items.edit',
+                      params: {
+                        questionNumber: data.questionNumber,
+                      },
+                      query: dataTableQueries,
+                    }"
+                  >
+                    <v-icon> mdi-pencil</v-icon>
+                  </v-btn>
+                </template>
+              </Column>
+              <template v-slot:expansion="{ data }">
+                <div>
+                  <v-progress-linear v-if="!data.previewLoaded" indeterminate>
                   </v-progress-linear>
                   <preview-card
                     v-else
-                    :item="item"
+                    :item="data"
                     :closeable="false"
                   ></preview-card>
-                </td>
+                </div>
               </template>
-            </v-data-table>
+              <template #empty>
+                {{ $t("No data available") }}
+              </template>
+            </DataTable>
           </v-col>
         </v-row>
       </v-card-text>
@@ -120,15 +170,15 @@ import bus from "@/components/core/bus";
 import { debounce } from "vue-debounce";
 import PreviewCard from "@/components/items/PreviewCard";
 import collect from "collect.js";
-import ClientSortDataTable from "@/components/core/ClientSortDataTable.vue";
 import contentLazyLoad from "@/components/items/contentLazyLoad";
 import TopicTreeview from "@/components/topics/TopicTreeview.vue";
 import { getItemsByTopic } from "@/services/TopicApi";
+import dataTableService from "@/components/core/dataTable/dataTableService";
 
 export default {
   name: "Board",
-  components: { PreviewCard, ClientSortDataTable, TopicTreeview },
-  mixins: [contentLazyLoad],
+  components: { PreviewCard, TopicTreeview },
+  mixins: [contentLazyLoad, dataTableService],
   props: {
     course: {
       type: Object,
@@ -137,11 +187,8 @@ export default {
   },
   data() {
     return {
-      sortBy: [],
-      sortDesc: [],
       expanded: [],
       items: [],
-      itemPagination: {},
       totalItems: null,
       loading: false,
       topicActive: [],
@@ -155,22 +202,18 @@ export default {
   },
   watch: {
     search() {
-      this.itemPagination.page = 1;
+      this.dataTablePagination.page = 1;
       this.fetch();
     },
-    "itemPagination.page": {
+    dataTablePagination: {
       handler() {
         this.fetch();
       },
-    },
-    "itemPagination.itemsPerPage": {
-      handler() {
-        this.fetch();
-      },
+      deep: true,
     },
     topicActive: {
       handler() {
-        this.itemPagination.page = 1;
+        this.dataTablePagination.page = 1;
         this.fetch();
       },
       deep: true,
@@ -183,8 +226,8 @@ export default {
         let data, pagination;
         if (this.topicActive.length === 0) {
           const result = await getItems(this.course.id, this.search, {
-            itemsPerPage: this.itemPagination?.itemsPerPage ?? 10,
-            page: this.itemPagination?.page ?? 1,
+            itemsPerPage: this.dataTablePagination?.itemsPerPage ?? 10,
+            page: this.dataTablePagination?.page ?? 1,
           });
           data = result.data;
           pagination = result.pagination;
@@ -194,8 +237,8 @@ export default {
             [],
             this.search,
             {
-              itemsPerPage: this.itemPagination?.itemsPerPage ?? 10,
-              page: this.itemPagination?.page ?? 1,
+              itemsPerPage: this.dataTablePagination?.itemsPerPage ?? 10,
+              page: this.dataTablePagination?.page ?? 1,
             }
           );
           data = result.data;
@@ -209,6 +252,13 @@ export default {
           }))
           .toArray();
         this.totalItems = pagination.total;
+        this.setPaginationToUrl({
+          search: this.search,
+          topicActive:
+            this.topicActive.length > 0
+              ? this.topicActive[0].id.toString()
+              : null,
+        });
       } catch (e) {
         bus.$emit("alert-message", {
           type: "error",
@@ -219,28 +269,11 @@ export default {
       }
     }, 400),
     async refreshItems() {
-      this.itemPagination.page = 1;
+      this.dataTablePagination.page = 1;
       this.fetch();
     },
   },
   computed: {
-    headers() {
-      // θ_max: theta that maximize the test info functioon.
-      return [
-        {
-          text: this.$t("items.ID"),
-          align: "start",
-          sortable: true,
-          value: "questionNumber",
-        },
-        { text: this.$t("items.Title"), value: "title" },
-        { text: "a", value: "a" },
-        { text: "b", value: "b" },
-        { text: "c", value: "c" },
-        { text: "θ_max", value: "maxInfoTheta" },
-        { text: this.$t("items.Actions"), value: "actions", sortable: false },
-      ];
-    },
     mapItems() {
       let items = collect(this.items);
 
@@ -264,6 +297,17 @@ export default {
         return this.topicActive;
       },
     },
+  },
+  mounted() {
+    const { search, topicActive } = this.$route.query;
+    if (search) {
+      this.search = search;
+    }
+    if (topicActive) {
+      this.topicActive = [{ id: parseInt(topicActive, 10) }];
+    }
+    this.initialPages();
+    this.fetch();
   },
 };
 </script>

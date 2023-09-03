@@ -1,7 +1,7 @@
 package com.xqdev.cyut_bkend_project.controller;
 
 import com.xqdev.cyut_bkend_project.entity.Item;
-import com.xqdev.cyut_bkend_project.entity.ItemEmptyQuesCont;
+import com.xqdev.cyut_bkend_project.entity.ItemEmptyQuesCont_I;
 import com.xqdev.cyut_bkend_project.repository.ItemRepository;
 import com.xqdev.cyut_bkend_project.service.ItemService;
 import com.xqdev.cyut_bkend_project.service.TopicService;
@@ -68,16 +68,37 @@ public class ItemController {
     public ResponseEntity<?> getItemsByCourse(@PathVariable("course_id") Long courseId,
                                       @RequestParam int itemsPerPage,
                                       @RequestParam int page,
-                                      @RequestParam(required = false) String search){
+                                      @RequestParam(required = false) String search,
+                                              @RequestParam(required = false) Integer noTopic){
+        // the default value for the noTopic is 0. The compiler sets the default value.
         Pageable pageable = null;
         Sort sort = Sort.by("questionNumber");
         if (itemsPerPage > 0)
             pageable = PageRequest.of(page - 1, itemsPerPage, sort);
         else pageable = Pageable.unpaged();
-
-        Page<ItemEmptyQuesCont> itemEmptyQuesContPage = ( search == null || search.isEmpty() ) ?
-                itemService.getItemRepository().findItemsByCourseId(courseId, pageable):
-                itemService.getItemRepository().findItemsByCourseIdAndContentContaining(courseId, search, pageable);
+        Page<? extends ItemEmptyQuesCont_I> itemEmptyQuesContPage = null;
+        if ( search == null || search.isEmpty() ) {
+            if (noTopic == null ||  noTopic != 1) {
+                // return items with or without topics
+                itemEmptyQuesContPage = itemService.getItemRepository().findItemsByCourseId(courseId, pageable);
+            }
+            else {
+                // return items without topics only
+                itemEmptyQuesContPage = itemService.getItemRepository().findItemsByCourseIdEmptyTopic(courseId, pageable);
+            }
+        } else {
+            if (noTopic == null || noTopic != 1) {
+                itemEmptyQuesContPage = itemService.getItemRepository().
+                        findItemsByCourseIdAndContentContaining(courseId, search, pageable);
+            } else {
+                // return items without topics only
+                itemEmptyQuesContPage = itemService.getItemRepository().
+                        findItemsByCourseIdAndContentContainingEmptyTopic(courseId, search, pageable);
+            }
+        }
+//        Page<? extends ItemEmptyQuesCont_I> itemEmptyQuesContPage = ( search == null || search.isEmpty() ) ?
+//                itemService.getItemRepository().findItemsByCourseId(courseId, pageable):
+//                itemService.getItemRepository().findItemsByCourseIdAndContentContaining(courseId, search, pageable);
         // type conversion
         Page<Item> itemPage = itemEmptyQuesContPage.map(this.itemHelper::convert);
         CustomResponse<List<Item>> customResponse = CustomResponse.of(itemPage);

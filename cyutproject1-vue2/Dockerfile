@@ -1,5 +1,4 @@
-#### Stage 1: Build the web application
-FROM node:16.19-alpine as build
+FROM node:18.17.1-alpine3.18 as build
 
 # Install python3
 RUN apk add python3
@@ -19,25 +18,23 @@ RUN npm install
 # Copy the main application
 COPY . ./
 
-# Environments
-ARG VUE_APP_SPRING_BOOT_REST_API
-ARG VUE_APP_AUTOPAPER_MINIMUM_ITEMS
-ENV VUE_APP_SPRING_BOOT_REST_API=${VUE_APP_SPRING_BOOT_REST_API}
-ENV VUE_APP_AUTOPAPER_MINIMUM_ITEMS=${VUE_APP_AUTOPAPER_MINIMUM_ITEMS}
-
 # Build the application
 RUN npm run build
 
-#### Stage 2: Serve the web application from Nginx
-FROM nginx:1.17.0-alpine
-
+FROM nginx:1.25.2-alpine3.18
+ENV ADMIN_USERNAME admin
+ENV ADMIN_PASSWORD PASSWORD
+# Install apache2-utils for htpasswd
+RUN apk add apache2-utils;
 # Copy the web build from Stage 1
 COPY --from=build /app/dist /var/www
 
-# Copy our custom nginx config
-COPY ./container_config/nginx.conf /etc/nginx/nginx.conf
+COPY ./container_config/* /etc/nginx
+COPY ./entrypoint.sh /docker-entrypoint.d/40-htpasswd.sh
+RUN chmod +x /docker-entrypoint.d/40-htpasswd.sh
 
 # Expose port 80 to the Docker host, so we can access it
 # from the outside.
 EXPOSE 80
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]
+

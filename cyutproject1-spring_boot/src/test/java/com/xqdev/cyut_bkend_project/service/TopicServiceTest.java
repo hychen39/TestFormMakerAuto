@@ -21,7 +21,7 @@ class TopicServiceTest {
     void validateImportedUserTopicId() {
         // the top 3 ids are not invalidated.
         String [] ids = {"1", "1.1", "1.2", "10", "10.1"};
-        Long courseId = Long.valueOf(5);
+        Long courseId = Long.valueOf(1);
         List<String> userTopicIds = Arrays.stream(ids).toList();
         List<String> invalidTopics = this.topicService.validateImportedUserTopicId(courseId, userTopicIds, true);
         Assertions.assertTrue( invalidTopics.size() > 0 );

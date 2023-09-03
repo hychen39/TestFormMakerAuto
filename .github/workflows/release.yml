@@ -1,0 +1,19 @@
+name: Release TestFormMakerAuto
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    if: "github.event.repository.name == 'TestFormMakerAuto'"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: butlerlogic/action-autotag@stable
+        env:
+          GITHUB_TOKEN: "${{ secrets.RELEASE_TOKEN }}"
+        with:
+          root: "/cyutproject1-vue2"

@@ -3,7 +3,7 @@ package com.xqdev.cyut_bkend_project.service;
 import com.xqdev.cyut_bkend_project.controller.ItemHelper;
 import com.xqdev.cyut_bkend_project.controller.TopicController;
 import com.xqdev.cyut_bkend_project.entity.Item;
-import com.xqdev.cyut_bkend_project.entity.ItemEmptyQuesCont;
+import com.xqdev.cyut_bkend_project.entity.ItemEmptyQuesCont_I;
 import com.xqdev.cyut_bkend_project.entity.Topic;
 import com.xqdev.cyut_bkend_project.repository.ItemRepository;
 import com.xqdev.cyut_bkend_project.repository.TopicJdbcRepo;
@@ -99,9 +99,9 @@ public class TopicService {
      * @param pageable
      * @return
      */
-    public Page<Item> findItemByTopic(Long topic_id, TopicController.ExcludeItemList excludeItemList, Pageable pageable) {
-
-        Page<ItemEmptyQuesCont> itemsOfEmptyCont = null;
+    public Page<ItemEmptyQuesCont_I> findItemByTopic(Long topic_id, TopicController.ExcludeItemList excludeItemList, Pageable pageable) {
+        // 回傳的 item 內 content 欄位為空值，節省 search time
+        Page<ItemEmptyQuesCont_I> itemsOfEmptyCont = null;
         if (excludeItemList == null || excludeItemList.getExcept().isEmpty()){
             itemsOfEmptyCont = this.itemRepository.findItemEmptyQCByTopicID(
                     topic_id, pageable
@@ -113,14 +113,15 @@ public class TopicService {
             );
         }
         // Convert
-        Page<Item> pageItems = itemsOfEmptyCont.map(this.itemHelper::convert);
+        // Page<Item> pageItems = itemsOfEmptyCont.map(this.itemHelper::convert);
 //        Page<Item> pageItems = topicJdbcRepo.findItemsByTopic(topic_id, excludeItemList.getExcept(), pageable);
 //        // populate the topics in each item
 //        pageItems.get().forEach((item -> {
 //            Optional<Item> itemWithTopic  = itemRepository.findById(item.getId());
 //            item.setTopics(itemWithTopic.get().getTopics());
 //        }));
-        return pageItems;
+        return itemsOfEmptyCont;
+        // return pageItems;
     }
 
     /**

@@ -51,4 +51,8 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+
 .gradle
+
+docker-compose.yml
+github.secrets

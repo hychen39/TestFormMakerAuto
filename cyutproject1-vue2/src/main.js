@@ -5,10 +5,12 @@ import router from "@/router";
 import store from "@/store";
 import vuetify from "@/plugins/vuetify";
 import i18n from "@/plugins/i18n";
+import "@/plugins/primeVue";
 import VMdEditor from "@kangc/v-md-editor/lib/codemirror-editor";
 import githubTheme from "@kangc/v-md-editor/lib/theme/github.js";
 import enUS from "@kangc/v-md-editor/lib/lang/en-US";
 import vuejsStorage from "vuejs-storage";
+import { UrlMapperPlugin } from "url-mapper-vue";
 import hljs from "highlight.js";
 import Codemirror from "codemirror";
 import "@kangc/v-md-editor/lib/style/codemirror-editor.css";
@@ -36,6 +38,7 @@ import "codemirror/lib/codemirror.css";
 
 Vue.use(AsyncComputed);
 Vue.use(vuejsStorage);
+Vue.use(UrlMapperPlugin);
 
 Vue.config.productionTip = false;
 

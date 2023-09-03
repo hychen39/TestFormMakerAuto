@@ -75,8 +75,12 @@ public class ItemService {
     public boolean changeItem(Long id, Item newItem) {
         Item item = itemRepository.findById(id).orElse(null);
         if (item != null) {
-           item.update(newItem);
-           this.getItemRepository().save(item);
+            try {
+                item.update(newItem);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            this.getItemRepository().save(item);
            return true;
         }
         return false;

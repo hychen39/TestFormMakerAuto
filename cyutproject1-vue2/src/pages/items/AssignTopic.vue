@@ -236,6 +236,10 @@ export default {
       this.itemPagination.page = 1;
       this.fetchItems();
     },
+    showNonClassified() {
+      this.itemPagination.page = 1;
+      this.fetchItems();
+    },
     "itemPagination.page": {
       handler() {
         this.fetchItems();
@@ -272,9 +276,6 @@ export default {
     },
     mapItems() {
       let items = collect(this.items);
-      if (this.showNonClassified) {
-        items = items.filter((item) => item.topics.length === 0);
-      }
 
       if (this.sortBy?.length > 0) {
         const sortColumn = this.sortBy[0];
@@ -347,6 +348,7 @@ export default {
         const options = {
           itemsPerPage: this.itemPagination?.itemsPerPage ?? 10,
           page: this.itemPagination?.page ?? 1,
+          noTopic: this.showNonClassified ? 1 : 0,
         };
 
         const { data, pagination } = await getItems(

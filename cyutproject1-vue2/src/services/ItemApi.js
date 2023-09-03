@@ -14,7 +14,18 @@ export async function getItems(
     },
   });
 
-  return data;
+  return {
+    ...data,
+    data: data.data.map((item) => ({
+      ...item,
+      content:
+        item.content === "" ||
+        item.content === null ||
+        item.content === undefined
+          ? null
+          : item.content,
+    })),
+  };
 }
 
 export async function getItemByQuestionNumber(courseId, questionNumber) {

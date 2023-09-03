@@ -1,0 +1,37 @@
+name: Clone to TestFormMakerAuto
+
+on:
+  workflow_dispatch:
+
+jobs:
+  clone:
+    if: "github.event.repository.name == 'TestFormMaker'"
+    name: Clone files to TestFormMakerAuto
+    runs-on: ubuntu-latest
+    steps:
+      # clone the dev repository
+      - name: Checkout dev repository
+        uses: actions/checkout@v3
+      - uses: benjlevesque/short-sha@v2.2
+
+      - name: Copy files
+        uses: adrianjost/files-sync-action@v2.0.4
+        env:
+          SHA: ${{ env.SHA }}
+        with:
+          FILE_PATTERNS: |
+            ^cyutproject1-spring_boot/*
+            ^cyutproject1-vue2/*
+            .github/workflows/*
+            ^DB_SQL/*
+            ^sample/*
+            ^.gitignore
+            ^deploy-*.sh
+            ^docker-compose.example.yml
+          SRC_REPO: hychen39/TestFormMaker
+          TARGET_REPOS: |
+            hychen39/TestFormMakerAuto
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GIT_EMAIL: "hychen39@users.noreply.github.com"
+          GIT_USERNAME: "hychen39"
+          COMMIT_MESSAGE: "Update files from TestFormMaker on ${{ env.SHA }}"

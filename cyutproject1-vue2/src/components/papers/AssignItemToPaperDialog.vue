@@ -53,38 +53,67 @@
                 ref="tableContainer"
                 :style="{ height: `${tableHeight}px`, 'overflow-y': 'auto' }"
               >
-                <v-data-table
-                  v-model="itemSelected"
-                  :headers="headers"
-                  :items="items"
-                  item-key="questionNumber"
-                  :search="search"
-                  :loading="loading"
-                  :items-per-page="10"
-                  :footer-props="{
-                    'items-per-page-options': [10, 50, 100, -1],
-                  }"
-                  :options.sync="itemPagination"
-                  :server-items-length="totalItems"
-                  show-select
-                  :no-data-text="
-                    !topicSelected
-                      ? $t('papers.Please Select Topic')
-                      : '$vuetify.noDataText'
-                  "
+                <v-text-field
+                  v-model="search"
+                  :label="$t('Search')"
+                  append-icon="mdi-magnify"
                 >
-                  <template v-slot:top>
-                    <v-text-field
-                      v-model="search"
-                      :label="$t('Search')"
-                      append-icon="mdi-magnify"
-                    >
-                    </v-text-field>
+                </v-text-field>
+                <DataTable
+                  class="p-datatable-sm"
+                  :selection.sync="itemSelected"
+                  :value="mapItems"
+                  :rows.sync="dataTablePagination.itemsPerPage"
+                  :totalRecords="totalItems"
+                  :loading="loading"
+                  :rowsPerPageOptions="[10, 50, 100]"
+                  :expandedRows.sync="expanded"
+                  :resizableColumns="true"
+                  columnResizeMode="fit"
+                  responsiveLayout="scroll"
+                  paginatorTemplate="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+                  collapsedRowIcon="mdi mdi-eye v-icon"
+                  expandedRowIcon="mdi mdi-eye v-icon"
+                  :currentPageReportTemplate="currentPageReportTemplate"
+                  removableSort
+                  showGridlines
+                  lazy
+                  paginator
+                  @page="onPage($event)"
+                  @sort="onSort($event)"
+                  @row-expand="previewItemInTheSection"
+                >
+                  <Column
+                    selectionMode="multiple"
+                    :headerStyle="{ width: '3em' }"
+                  ></Column>
+                  <Column
+                    field="questionNumber"
+                    :header="$t('items.ID')"
+                    :sortable="true"
+                    :style="{ width: '10%' }"
+                  ></Column>
+                  <Column
+                    field="title"
+                    :header="$t('items.Title')"
+                    :sortable="true"
+                    :style="{ width: '60%' }"
+                  >
+                    <template v-slot:body="{ data }">
+                      <div class="text-break text-wrap">
+                        {{ data.title }}
+                      </div>
+                    </template>
+                  </Column>
+                  <Column :expander="true" :style="{ width: '5%' }" />
+                  <template #empty>
+                    {{
+                      !topicSelected
+                        ? $t("papers.Please Select Topic")
+                        : $t("No data available")
+                    }}
                   </template>
-                  <template v-slot:item.actions="{ item }">
-                    <v-icon @click="onPreviewItem(item)">mdi-eye</v-icon>
-                  </template>
-                </v-data-table>
+                </DataTable>
               </div>
               <v-divider
                 ref="previewDivider"
@@ -114,14 +143,17 @@
 </template>
 
 <script>
+import { debounce } from "vue-debounce";
 import { getItemsByTopic, getTopics } from "@/services/TopicApi";
 import PreviewCard from "@/components/items/PreviewCard";
 import collect from "collect.js";
 import bus from "@/components/core/bus";
-import { getItemByQuestionNumber } from "@/services/ItemApi";
+import contentLazyLoad from "@/components/items/contentLazyLoad";
+import dataTableService from "@/components/core/dataTable/dataTableService";
 
 export default {
   name: "AssignItemToPaperDialog",
+  mixins: [contentLazyLoad, dataTableService],
   props: {
     value: Array,
     course: {
@@ -143,8 +175,8 @@ export default {
       items: [],
       editedItem: null,
       topicSelected: false,
-      itemPagination: {},
       totalItems: null,
+      expanded: [],
     };
   },
   watch: {
@@ -160,39 +192,44 @@ export default {
 
       if (value) {
         this.itemSelected = [];
-        this.itemPagination.page = 1;
+        this.dataTablePagination.page = 1;
         await this.fetchItems();
       }
     },
     topicSelected: {
       handler() {
-        if (this.itemPagination.page === 1) {
-          this.fetchItems();
-          return;
-        }
-        this.itemPagination.page = 1;
+        this.dataTablePagination.page = 1;
+        this.fetchItems();
       },
       deep: true,
     },
-    itemPagination: {
+    dataTablePagination: {
       handler() {
         this.fetchItems();
       },
       deep: true,
     },
+    search: {
+      handler() {
+        this.dataTablePagination.page = 1;
+        this.fetchItems();
+      },
+    },
   },
   computed: {
-    headers() {
-      return [
-        {
-          text: this.$t("papers.ID"),
-          align: "start",
-          sortable: true,
-          value: "questionNumber",
-        },
-        { text: this.$t("papers.Title"), value: "title" },
-        { text: this.$t("papers.Actions"), value: "actions" },
-      ];
+    mapItems() {
+      let items = collect(this.items);
+
+      if (this.sortBy?.length > 0) {
+        const sortColumn = this.sortBy[0];
+        if (this.sortDesc[0]) {
+          items = items.sortByDesc(sortColumn);
+        } else {
+          items = items.sortBy(sortColumn);
+        }
+      }
+
+      return items.values().all();
     },
   },
   asyncComputed: {
@@ -204,19 +241,11 @@ export default {
     },
   },
   methods: {
-    async onPreviewItem(item) {
-      if (!item.content) {
-        const { data } = await getItemByQuestionNumber(
-          this.course.id,
-          item.questionNumber
-        );
-        Object.assign(item, data, {
-          previewLoaded: true,
-        });
-      }
-      this.editedItem = item;
+    async previewItemInTheSection({ data }) {
+      await this.previewItemOnPrimeVueTable({ data });
+      this.editedItem = data;
     },
-    async fetchItems() {
+    fetchItems: debounce(async function () {
       if (!this.topicSelected || this.topicSelected.length === 0) {
         return [];
       }
@@ -230,8 +259,8 @@ export default {
           except,
           this.search,
           {
-            itemsPerPage: this.itemPagination?.itemsPerPage ?? 10,
-            page: this.itemPagination?.page ?? 1,
+            itemsPerPage: this.dataTablePagination?.itemsPerPage ?? 10,
+            page: this.dataTablePagination?.page ?? 1,
           }
         );
         this.totalItems = pagination.total;
@@ -244,7 +273,7 @@ export default {
       } finally {
         this.loading = false;
       }
-    },
+    }, 400),
     onAdd() {
       this.$emit(
         "input",

@@ -1,7 +1,7 @@
 package com.xqdev.cyut_bkend_project.controller;
 
 import com.xqdev.cyut_bkend_project.entity.Item;
-import com.xqdev.cyut_bkend_project.entity.ItemEmptyQuesCont;
+import com.xqdev.cyut_bkend_project.entity.ItemEmptyQuesCont_I;
 import com.xqdev.cyut_bkend_project.entity.Topic;
 import com.xqdev.cyut_bkend_project.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class ItemHelper {
         this.itemRepository = itemRepository;
     }
 
-    public Item convert(ItemEmptyQuesCont itemEmptyQuesCont){
+    public Item convert(ItemEmptyQuesCont_I itemEmptyQuesCont){
         Item item = new Item();
         item.setId(itemEmptyQuesCont.getId());
         item.setTitle(itemEmptyQuesCont.getTitle());

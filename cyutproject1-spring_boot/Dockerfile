@@ -1,5 +1,5 @@
 #### Stage 1: Build the application
-FROM gradle:jdk17 as build
+FROM gradle:7.3.0-jdk17 as build
 
 # Configure the main working directory inside the docker image.
 # This is the base directory used in any further RUN, COPY, and ENTRYPOINT
@@ -16,7 +16,7 @@ RUN gradle clean build --no-daemon > /dev/null 2>&1 || true
 COPY . ./
 
 # Build application
-RUN gradle clean build --no-daemon
+RUN gradle clean build -x test --no-daemon --no-watch-fs
 
 EXPOSE 8000
 CMD ["java", "-jar", "/app/build/libs/cyut_bkend_project-0.0.1-SNAPSHOT.jar"]

@@ -42,7 +42,11 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
-            <v-btn v-if="!loading" :to="{ name: 'items.list' }" color="teal">
+            <v-btn
+              v-if="!loading"
+              :to="{ name: 'items.list', query: $route.query }"
+              color="teal"
+            >
               {{ $t("Cancel") }}
             </v-btn>
             <v-btn
@@ -101,7 +105,10 @@ export default {
           type: "success",
           message: this.$t("items.Deleted item successfully"),
         });
-        await this.$router.replace({ name: "items.list" });
+        await this.$router.replace({
+          name: "items.list",
+          query: this.$route.query,
+        });
       } catch (e) {
         bus.$emit("alert-message", {
           type: "error",
@@ -134,7 +141,10 @@ export default {
           type: "success",
           message: this.$t("items.Updated successfully"),
         });
-        await this.$router.replace({ name: "items.list" });
+        await this.$router.replace({
+          name: "items.list",
+          query: this.$route.query,
+        });
       } catch (e) {
         bus.$emit("alert-message", {
           type: "error",
