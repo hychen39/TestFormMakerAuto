@@ -25,7 +25,7 @@
           </v-btn>
         </div>
       </v-app-bar>
-      <v-card-text style="overflow-y: auto; max-height: calc(100vh - 136px)">
+      <v-card-text style="overflow-y: auto; max-height: calc(100vh - 122px)">
         <v-data-table
           :headers="headers"
           :items="mapItems"

@@ -58,7 +58,10 @@
               {{ $t("Submit") }}
             </v-btn>
           </v-app-bar>
-          <v-card-text>
+          <v-card-text
+            class="overflow-auto pb-0"
+            style="height: calc(100vh - 134px)"
+          >
             <fields v-if="form.id" :form="form"> </fields>
           </v-card-text>
         </v-card>

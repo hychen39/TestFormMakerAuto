@@ -4,12 +4,14 @@
     "Create": "Create",
     "Delete": "Delete",
     "Edit": "Edit",
+    "Actions": "Actions",
     "Export to HTML": "Export to HTML",
     "Export to Markdown": "Export to Markdown",
     "List": "List",
     "No data available": "No data available",
     "Search": "Search",
     "Submit": "Submit",
+    "Back": "Back",
     "Topics": {
         "Can not create items, minimum value is": "Can not create a test paper with the required maximum acceptable misclassification probability.The current misclassification prob. is",
         "Close All": "Close All",
@@ -124,9 +126,21 @@
             "Removed topic successfully": "Removed topic successfully.",
             "to preview": "to preview."
         },
-        "questionNumber": "Question Number"
+        "questionNumber": "Question Number",
+        "itemLinks": {
+            "Linked Items": "Linked Items",
+            "Create Linked Items": "Create Linked Items",
+            "Linked Item Type": "Linked Item Type",
+            "Linked Item": "Linked Item",
+            "Linked item successfully": "Linked item successfully",
+            "Are you sure to unlink the link item?": "Are you sure to unlink the link item?",
+            "This will be permanent": "This will be permanent",
+            "Unlinked successfully": "Unlinked successfully",
+            "Unlink": "Unlink"
+        }
     },
     "langs": {
+        "Language": "Language",
         "English": "English",
         "zhHant": "Traditional Chinese"
     },
@@ -170,7 +184,8 @@
         "Updated paper successfully": "Update paper successfully.",
         "evaluate missclass prob": "evaluate missclass prob",
         "topMenu": "Papers",
-        "unitOfQuestions": "Items"
+        "unitOfQuestions": "Items",
+        "Linked Items": "Linked Items"
     },
     "project": {
         "title": "Auto Test Assembly"

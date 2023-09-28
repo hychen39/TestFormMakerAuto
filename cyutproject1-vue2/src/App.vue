@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <top-menu></top-menu>
+    <top-menu v-if="!course"></top-menu>
     <left-menu v-if="course" :course="course"></left-menu>
     <v-main
       :style="{
@@ -13,7 +13,7 @@
       <router-view></router-view>
     </v-main>
     <snackbar></snackbar>
-    <v-footer class="justify-end">
+    <v-footer outlined class="justify-end">
       <app-version></app-version>
     </v-footer>
   </v-app>

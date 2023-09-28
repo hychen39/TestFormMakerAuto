@@ -60,7 +60,7 @@
         </v-dialog>
       </v-app-bar>
       <v-card-text>
-        <v-row style="max-height: calc(100vh - 145px); overflow-y: auto">
+        <v-row style="max-height: calc(100vh - 130px); overflow-y: auto">
           <v-col cols="12">
             <topic-treeview
               ref="topicTreeview"

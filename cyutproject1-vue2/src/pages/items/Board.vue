@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-card class="mt-3">
+    <v-card>
       <v-app-bar dark color="#555555">
         <v-toolbar-title>
           <v-btn
@@ -8,7 +8,7 @@
             @click="showTreeViewCategory = !showTreeViewCategory"
             icon
           >
-            <v-icon> mdi-file-tree-outline </v-icon>
+            <v-icon> mdi-file-tree-outline</v-icon>
           </v-btn>
           <span>
             {{ $t("items.board.Item Board") }}
@@ -38,14 +38,17 @@
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
       </v-app-bar>
-      <v-card-text>
-        <v-row no-gutters>
+      <v-card-text
+        class="overflow-auto"
+        style="max-height: calc(100vh - 122px)"
+      >
+        <v-row>
           <v-slide-x-transition hide-on-leave>
             <v-col
               v-show="showTreeViewCategory"
               cols="12"
               sm="4"
-              style="max-height: calc(100vh - 188px); overflow-y: auto"
+              style="max-height: calc(100vh - 130px); overflow-y: auto"
             >
               <div class="d-flex">
                 <v-btn
@@ -128,18 +131,40 @@
               ></Column>
               <Column :header="$t('items.Actions')" :style="{ width: '5%' }">
                 <template v-slot:body="{ data }">
-                  <v-btn
-                    icon
-                    :to="{
-                      name: 'items.edit',
-                      params: {
-                        questionNumber: data.questionNumber,
-                      },
-                      query: dataTableQueries,
-                    }"
-                  >
-                    <v-icon> mdi-pencil</v-icon>
-                  </v-btn>
+                  <v-row>
+                    <v-col cols="12" class="py-1 mt-2">
+                      <v-btn
+                        color="primary"
+                        x-small
+                        :to="{
+                          name: 'items.edit',
+                          params: {
+                            questionNumber: data.questionNumber,
+                          },
+                          query: dataTableQueries,
+                        }"
+                      >
+                        <v-icon> mdi-pencil</v-icon>
+                        {{ $t("Edit") }}
+                      </v-btn>
+                    </v-col>
+                    <v-col cols="12" class="py-1 mb-2">
+                      <v-btn
+                        color="primary"
+                        x-small
+                        :to="{
+                          name: 'items.link',
+                          params: {
+                            questionNumber: data.questionNumber,
+                          },
+                          query: dataTableQueries,
+                        }"
+                      >
+                        <v-icon> mdi-relation-many-to-many</v-icon>
+                        {{ $t("items.itemLinks.Linked Items") }}
+                      </v-btn>
+                    </v-col>
+                  </v-row>
                 </template>
               </Column>
               <template v-slot:expansion="{ data }">
@@ -194,6 +219,7 @@ export default {
       topicActive: [],
       search: "",
       showTreeViewCategory: true,
+      activeItemLink: null,
     };
   },
   storage: {
@@ -271,6 +297,9 @@ export default {
     async refreshItems() {
       this.dataTablePagination.page = 1;
       this.fetch();
+    },
+    onItemLink(item) {
+      this.activeItemLink = item;
     },
   },
   computed: {

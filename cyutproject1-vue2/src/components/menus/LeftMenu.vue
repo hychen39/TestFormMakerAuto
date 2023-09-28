@@ -1,9 +1,5 @@
 <template>
-  <v-navigation-drawer
-    :style="{ 'margin-top': $vuetify.breakpoint.mdAndDown ? null : '48px' }"
-    fixed
-    v-model="drawer"
-  >
+  <v-navigation-drawer fixed v-model="drawer">
     <template v-if="course">
       <v-list-item :to="{ name: 'courses.list' }" exact>
         <v-list-item-icon>
@@ -129,6 +125,35 @@
         </v-list-item-content>
       </v-list-item>
     </v-list>
+
+    <template v-slot:append>
+      <v-menu>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn text block v-bind="attrs" v-on="on">
+            {{ $t("langs.Language") }}
+            <v-icon class="ml-3">mdi-translate</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list>
+          <v-subheader>
+            {{ $t("Translations") }}
+          </v-subheader>
+          <v-list-item-group v-model="$i18n.locale" color="primary" mandatory>
+            <v-list-item value="en">
+              <v-list-item-title>
+                {{ $t("langs.English") }}
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item value="zhHant">
+              <v-list-item-title>
+                {{ $t("langs.zhHant") }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-list-item-group>
+        </v-list>
+      </v-menu>
+    </template>
   </v-navigation-drawer>
 </template>
 

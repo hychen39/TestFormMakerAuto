@@ -12,9 +12,12 @@
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
       </v-app-bar>
-      <v-row>
+      <v-row class="overflow-hidden">
         <v-col
-          :class="{ 'content-height': $vuetify.breakpoint.mdAndUp }"
+          :class="{
+            'content-height': $vuetify.breakpoint.mdAndUp,
+            'overflow-auto': true,
+          }"
           :style="{
             width: `${topicTreeWidth}px`,
             'max-width': `${topicTreeWidth}px`,
@@ -470,8 +473,8 @@ header {
 }
 
 .content-height {
-  height: calc(100vh - 110px);
-  overflow: auto;
+  height: calc(100vh - 96px);
+  overflow: hidden;
 }
 
 .white-space-normal {

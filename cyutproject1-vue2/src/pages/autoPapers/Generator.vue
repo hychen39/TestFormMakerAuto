@@ -344,6 +344,6 @@ export default {
 <style scoped>
 .topic-container {
   overflow-y: auto;
-  height: calc(100vh - 265px);
+  height: calc(100vh - 255px);
 }
 </style>

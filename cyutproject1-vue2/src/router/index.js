@@ -46,6 +46,12 @@ const routes = [
         props: true,
       },
       {
+        path: "items/:questionNumber/links",
+        name: "items.link",
+        component: () => import("@/pages/items/Link"),
+        props: true,
+      },
+      {
         path: "items/:questionNumber/edit",
         name: "items.edit",
         component: () => import("@/pages/items/Edit"),

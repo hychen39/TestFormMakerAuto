@@ -2,6 +2,7 @@ package com.xqdev.cyut_bkend_project.controller;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.xqdev.cyut_bkend_project.entity.*;
+import com.xqdev.cyut_bkend_project.repository.ItemRepository;
 import com.xqdev.cyut_bkend_project.service.ItemService;
 import com.xqdev.cyut_bkend_project.service.TopicService;
 import lombok.Data;
@@ -34,6 +35,7 @@ public class TopicController {
 
     final private TopicService topicService;
     final private ItemService itemService;
+    final private ItemRepository itemRepo;
     final private ItemHelper itemHelper;
     private Logger logger = LoggerFactory.getLogger(TopicController.class);
 
@@ -41,11 +43,12 @@ public class TopicController {
 
 
     @Autowired
-    public TopicController( TopicService topicService,
-                            ItemService itemService,
-                            ItemHelper itemHelper) {
+    public TopicController(TopicService topicService,
+                           ItemService itemService,
+                           ItemRepository itemRepo, ItemHelper itemHelper) {
         this.topicService = topicService;
         this.itemService = itemService;
+        this.itemRepo = itemRepo;
         this.itemHelper = itemHelper;
     }
 
@@ -183,7 +186,7 @@ public class TopicController {
      * 找出某個 topic 下的所由 item。 Request Body 中提供排除的項目。
      * Query parameter: ?itemsPerPage=15&page=1&search=
      * @param topic_id
-     * @param excludeItemList
+     * @param excludeItemList 放在 request body 中的例外 item.
      * @param itemsPerPage
      * @param page
      * @param search 搜尋字詞。
@@ -191,7 +194,7 @@ public class TopicController {
      *  需要另外 call 再取得 content 的內容。
      */
     @PostMapping("/topic/{topic_id}/items")
-    public CustomResponse<List<ItemEmptyQuesCont_I>> findItemsByTopic(@PathVariable Long topic_id,
+    public CustomResponse<List<Item>> findItemsByTopic(@PathVariable Long topic_id,
                                                        @RequestBody ExcludeItemList excludeItemList,
                                                        @RequestParam int itemsPerPage,
                                                        @RequestParam int page,
@@ -220,8 +223,16 @@ public class TopicController {
             }
         }
 
-        CustomResponse<List<ItemEmptyQuesCont_I>> customResponse = new CustomResponse<>();
-        customResponse.setData(pageItemsEmptyContent.getContent());
+        // Convert ItemEmptyQuesCont_I to ItemEmptyQuesCont
+        Page<Item> pageItemsEmpContWithTopics = pageItemsEmptyContent.map( (i) -> {
+            Item item = null ;
+            item = this.itemHelper.convert(i);
+            return item;
+        });
+
+        //
+        CustomResponse<List<Item>> customResponse = new CustomResponse<>();
+        customResponse.setData(pageItemsEmpContWithTopics.getContent());
         Pagination pagination = new Pagination(
                 pageItemsEmptyContent.getTotalElements(),
                 pageItemsEmptyContent.getTotalPages(),

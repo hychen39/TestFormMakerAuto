@@ -48,8 +48,10 @@
             </v-dialog>
 
             <assign-item-to-paper-dialog
+              ref="assignItemToPaperDialog"
               v-model="form.items"
               :course="course"
+              :defaultFilterItem="defaultFilterItem"
             ></assign-item-to-paper-dialog>
             <calculate-max-misclassification-probability
               :items="form.items"
@@ -168,18 +170,21 @@
               </v-card>
             </v-menu>
           </v-app-bar>
-          <v-sheet style="overflow-y: auto; max-height: calc(100vh - 136px)">
+          <v-sheet>
             <v-card-text>
               <fields :form="form"></fields>
             </v-card-text>
             <v-subheader>{{ $t("papers.Topics") }}</v-subheader>
-            <v-card-text>
+            <v-card-text class="overflow-auto py-0" style="max-height: 94px">
               <v-chip class="ma-1" v-for="topic in itemsTopics" :key="topic">
                 {{ topic }}
               </v-chip>
             </v-card-text>
             <v-divider></v-divider>
-            <v-card-text>
+            <v-card-text
+              class="overflow-auto"
+              style="max-height: calc(100vh - 461px)"
+            >
               <v-data-table
                 v-model="selected"
                 :items="form.items"
@@ -202,6 +207,15 @@
                     <v-divider class="mx-4" inset vertical></v-divider>
                     <v-spacer></v-spacer>
                   </v-toolbar>
+                </template>
+                <template v-slot:item.LinkedItems="{ item }">
+                  <v-btn
+                    text
+                    color="primary"
+                    @click.prevent="onRelationItemDialog(item)"
+                  >
+                    <v-icon> mdi-relation-many-to-many</v-icon>
+                  </v-btn>
                 </template>
                 <template v-slot:item.topics="{ item }">
                   <v-chip
@@ -274,11 +288,23 @@ export default {
       deletePaperConfirmation: false,
       deletePaperLoading: false,
       exporting: false,
+      defaultFilterItem: null,
     };
   },
   computed: {
     headers() {
       return [
+        {
+          value: "questionNumber",
+          text: this.$t("papers.ID"),
+          sort: false,
+        },
+        {
+          value: "LinkedItems",
+          text: this.$t("papers.Linked Items"),
+          sort: false,
+          align: "center",
+        },
         { value: "title", text: this.$t("papers.Title"), sort: false },
         { value: "topics", text: this.$t("papers.Topics"), sort: false },
       ];
@@ -438,6 +464,10 @@ export default {
         item,
         value: true,
       });
+    },
+    onRelationItemDialog(item) {
+      this.defaultFilterItem = item;
+      this.$refs.assignItemToPaperDialog.open();
     },
   },
   async mounted() {

@@ -82,3 +82,8 @@ export async function destroy(id) {
   const { data } = await axios.delete(`items/${id}`);
   return data;
 }
+
+export async function links(id) {
+  const { data } = await axios.get(`/items/${id}/links`);
+  return data;
+}

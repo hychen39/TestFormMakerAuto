@@ -1,6 +1,6 @@
 {
   "name": "cyutproject1-vue2",
-  "version": "2023.02.05",
+  "version": "2023.03.01",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -16,6 +16,7 @@
     "@vue/vue2-jest": "^27.0.0",
     "axios": "^0.21.1",
     "babel-runtime": "^6.26.0",
+    "caniuse-lite": "^1.0.30001525",
     "collect.js": "^4.34.3",
     "core-js": "^3.6.5",
     "date-fns": "^2.29.3",

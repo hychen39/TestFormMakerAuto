@@ -4,48 +4,67 @@ version: '3.8'
 
 services:
   api:
+    # TestFormMaker API Image
     image: testformmaker/test-form-maker-api
     ports:
+      # expose port 8000 on the host machine, so that we can access the API
       - "8000:8000"
     restart: always
     depends_on:
+      # the API depends on the db network
       - db
     environment:
+      # Database connection string
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/DB_NAME
+      # Database username
       SPRING_DATASOURCE_USERNAME: DB_USERNAME
+      # Database password
       SPRING_DATASOURCE_PASSWORD: DB_PASSWORD
     networks:
+      # the API is on both the web and db networks
       - web
       - db
 
   web:
+    # TestFormMaker Website Image
     image: testformmaker/test-form-maker-website
     environment:
-      # Default username is admin
+      # nginx auth username (default: admin)
       ADMIN_USERNAME: admin
-      # Default password is PASSWORD
+      # nginx auth password (default: Test)
       ADMIN_PASSWORD: Test
     ports:
+      # expose port 80 on the host machine, so that we can access the website
       - "80:80"
     restart: always
     depends_on:
+      # the website depends on the api network
       - api
     networks:
+      # the website is on the web network
       - web
 
   db:
+    # MySQL Image
     image: mysql:8.0
     ports:
+      # expose port 3306 on the host machine, so that we can access the database
       - "3306:3306"
     restart: always
     environment:
+      # MYSQL_DATABASE is the name of the database
       MYSQL_DATABASE: DB_NAME
+      # MYSQL_USER is the database username
       MYSQL_USER: DB_USERNAME
+      # MYSQL_PASSWORD is the database password
       MYSQL_PASSWORD: DB_PASSWORD
+      # MYSQL_ROOT_PASSWORD is the root password
       MYSQL_ROOT_PASSWORD: root
     volumes:
+      # mount the db-data volume to /var/lib/mysql
       - db-data:/var/lib/mysql
     networks:
+      # the database is on the db network
       - db
 volumes:
   db-data:

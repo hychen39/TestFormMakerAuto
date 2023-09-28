@@ -14,7 +14,7 @@
         <v-toolbar-title>{{ $t("papers.Add Question") }}</v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
-          <v-btn text @click="onAdd"> {{ $t("Add") }} </v-btn>
+          <v-btn text @click="onAdd"> {{ $t("Add") }}</v-btn>
         </v-toolbar-items>
       </v-toolbar>
 
@@ -53,6 +53,16 @@
                 ref="tableContainer"
                 :style="{ height: `${tableHeight}px`, 'overflow-y': 'auto' }"
               >
+                <v-chip
+                  v-if="filterItem"
+                  color="warning"
+                  close
+                  class="text-wrap"
+                  style="height: auto"
+                  @click:close="onFilterRelations(null)"
+                >
+                  {{ filterItem.questionNumber }} {{ filterItem.title }}
+                </v-chip>
                 <v-text-field
                   v-model="search"
                   :label="$t('Search')"
@@ -60,6 +70,7 @@
                 >
                 </v-text-field>
                 <DataTable
+                  v-if="!filterItem"
                   class="p-datatable-sm"
                   :selection.sync="itemSelected"
                   :value="mapItems"
@@ -78,7 +89,7 @@
                   removableSort
                   showGridlines
                   lazy
-                  paginator
+                  :paginator="!filterItem"
                   @page="onPage($event)"
                   @sort="onSort($event)"
                   @row-expand="previewItemInTheSection"
@@ -92,7 +103,68 @@
                     :header="$t('items.ID')"
                     :sortable="true"
                     :style="{ width: '10%' }"
+                  >
+                    <template v-slot:body="{ data }">
+                      <v-btn
+                        text
+                        color="primary"
+                        @click="onFilterRelations(data)"
+                      >
+                        <v-icon> mdi-relation-many-to-many</v-icon>
+                        {{ data.questionNumber }}
+                      </v-btn>
+                    </template>
+                  </Column>
+                  <Column
+                    field="title"
+                    :header="$t('items.Title')"
+                    :sortable="true"
+                    :style="{ width: '60%' }"
+                  >
+                    <template v-slot:body="{ data }">
+                      <div class="text-break text-wrap">
+                        {{ data.title }}
+                      </div>
+                    </template>
+                  </Column>
+                  <Column :expander="true" :style="{ width: '5%' }" />
+                  <template #empty>
+                    {{
+                      !topicSelected
+                        ? $t("papers.Please Select Topic")
+                        : $t("No data available")
+                    }}
+                  </template>
+                </DataTable>
+                <DataTable
+                  v-else
+                  class="p-datatable-sm"
+                  :selection.sync="itemSelected"
+                  :value="mapItems"
+                  :totalRecords="totalItems"
+                  :expandedRows.sync="expanded"
+                  :resizableColumns="true"
+                  columnResizeMode="fit"
+                  responsiveLayout="scroll"
+                  collapsedRowIcon="mdi mdi-eye v-icon"
+                  expandedRowIcon="mdi mdi-eye v-icon"
+                  :filters="{ global: { value: search } }"
+                  :globalFilterFields="['questionNumber', 'title']"
+                  removableSort
+                  showGridlines
+                  @row-expand="previewItemInTheSection"
+                >
+                  <Column
+                    selectionMode="multiple"
+                    :headerStyle="{ width: '3em' }"
                   ></Column>
+                  <Column
+                    field="questionNumber"
+                    :header="$t('items.ID')"
+                    :sortable="true"
+                    :style="{ width: '10%' }"
+                  >
+                  </Column>
                   <Column
                     field="title"
                     :header="$t('items.Title')"
@@ -150,6 +222,7 @@ import collect from "collect.js";
 import bus from "@/components/core/bus";
 import contentLazyLoad from "@/components/items/contentLazyLoad";
 import dataTableService from "@/components/core/dataTable/dataTableService";
+import { getItems, links } from "@/services/ItemApi";
 
 export default {
   name: "AssignItemToPaperDialog",
@@ -159,6 +232,9 @@ export default {
     course: {
       type: Object,
       required: true,
+    },
+    defaultFilterItem: {
+      type: Object,
     },
   },
   components: {
@@ -177,6 +253,8 @@ export default {
       topicSelected: false,
       totalItems: null,
       expanded: [],
+      filterItem: null,
+      keepOldSearch: null,
     };
   },
   watch: {
@@ -191,6 +269,9 @@ export default {
       }
 
       if (value) {
+        if (this.defaultFilterItem) {
+          this.filterItem = Object.assign({}, this.defaultFilterItem);
+        }
         this.itemSelected = [];
         this.dataTablePagination.page = 1;
         await this.fetchItems();
@@ -235,7 +316,14 @@ export default {
   asyncComputed: {
     topicTreeItems: {
       async get() {
-        return await getTopics(this.course.id);
+        const items = await getTopics(this.course.id);
+        return [
+          {
+            id: null,
+            name: this.$t("All Topics"),
+            children: items,
+          },
+        ];
       },
       default: [],
     },
@@ -246,6 +334,10 @@ export default {
       this.editedItem = data;
     },
     fetchItems: debounce(async function () {
+      if (this.filterItem) {
+        return this.relationFetch();
+      }
+
       if (!this.topicSelected || this.topicSelected.length === 0) {
         return [];
       }
@@ -254,17 +346,26 @@ export default {
 
       try {
         this.loading = true;
-        const { data, pagination } = await getItemsByTopic(
-          this.topicSelected[0].id,
-          except,
-          this.search,
-          {
+        let response = null;
+        if (this.topicSelected[0].id) {
+          response = await getItemsByTopic(
+            this.topicSelected[0].id,
+            except,
+            this.search,
+            {
+              itemsPerPage: this.dataTablePagination?.itemsPerPage ?? 10,
+              page: this.dataTablePagination?.page ?? 1,
+            }
+          );
+        } else {
+          response = await getItems(this.course.id, this.search, {
             itemsPerPage: this.dataTablePagination?.itemsPerPage ?? 10,
             page: this.dataTablePagination?.page ?? 1,
-          }
-        );
-        this.totalItems = pagination.total;
-        this.items = data;
+          });
+        }
+
+        this.totalItems = response?.pagination.total;
+        this.items = response?.data;
       } catch (e) {
         bus.$emit("alert-message", {
           type: "error",
@@ -285,6 +386,7 @@ export default {
       this.onClose();
     },
     onClose() {
+      this.filterItem = null;
       this.dialog = false;
     },
     setEvent() {
@@ -315,6 +417,48 @@ export default {
         false
       );
       vm.initial = true;
+    },
+    onFilterRelations(data) {
+      if (data === null) {
+        this.search = this.keepOldSearch;
+        this.keepOldSearch = null;
+      } else {
+        this.keepOldSearch = this.search;
+        this.search = null;
+      }
+      this.filterItem = data;
+      this.fetchItems();
+    },
+    async relationFetch() {
+      try {
+        this.loading = true;
+        const { data } = await links(this.filterItem.id);
+
+        const itemsRecently = collect(this.value);
+        this.items = collect(data)
+          .reject((item) => {
+            return itemsRecently.where("id", item.linkedItemId).isNotEmpty();
+          })
+          .map((item) => ({
+            id: item.linkedItemId,
+            title: item.title,
+            questionNumber: item.questionNumber,
+            course_id: this.course.id,
+            topics: item.topics,
+          }))
+          .toArray();
+        this.totalItems = data.length;
+      } catch (e) {
+        bus.$emit("alert-message", {
+          type: "error",
+          message: e.message,
+        });
+      } finally {
+        this.loading = false;
+      }
+    },
+    open() {
+      this.dialog = true;
     },
   },
 };

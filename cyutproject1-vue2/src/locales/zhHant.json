@@ -2,6 +2,7 @@
     "Add": "新增",
     "Cancel": "取消",
     "Create": "建立",
+    "Actions": "操作",
     "Delete": "刪除",
     "Edit": "修改",
     "Export to HTML": "匯出成 HTML",
@@ -10,6 +11,7 @@
     "No data available": "沒有資料",
     "Search": "搜尋",
     "Submit": "送出",
+    "Back": "返回",
     "Topics": {
         "Can not create items, minimum value is": "此誤判率無法產生題組，目前計算最低誤判率為",
         "Close All": "全部關閉",
@@ -124,9 +126,21 @@
             "Removed topic successfully": "貼標移除成功",
             "to preview": "預覽"
         },
-        "questionNumber": "題目編號"
+        "questionNumber": "題目編號",
+        "itemLinks": {
+            "Linked Items": "題目關聯",
+            "Create Linked Items": "建立題目關聯",
+            "Linked Item Type": "題目關聯分類",
+            "Linked Item": "關聯題目",
+            "Linked item successfully": "關聯題目成功",
+            "Are you sure to unlink the link item?": "是否要刪除此關聯?",
+            "This will be permanent": "此操作為永久且不可逆，請確定是否要執行",
+            "Unlinked successfully": "關聯刪除成功",
+            "Unlink": "刪除"
+        }
     },
     "langs": {
+        "Language": "語言",
         "English": "英文",
         "zhHant": "繁體中文"
     },
@@ -170,7 +184,8 @@
         "Updated paper successfully": "試卷更新成功",
         "evaluate missclass prob": "最大誤判率",
         "topMenu": "試卷編製",
-        "unitOfQuestions": "題"
+        "unitOfQuestions": "題",
+        "Linked Items": "關聯試題"
     },
     "project": {
         "title": "自動組卷系統"

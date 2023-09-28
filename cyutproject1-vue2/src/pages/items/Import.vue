@@ -68,7 +68,11 @@
           </v-col>
         </v-row>
       </v-card-text>
-      <v-card-text v-if="mapFiles">
+      <v-card-text
+        v-if="mapFiles"
+        class="overflow-auto"
+        style="height: calc(100vh - 122px)"
+      >
         <v-row>
           <v-col>
             <v-row>
@@ -392,7 +396,7 @@ export default {
           return files.map((file) => {
             const data = {
               questionNumber: file.questionNumber,
-              title: `${file.questionNumber} ${file.data.split("\n", 3)[2]}`,
+              title: file.data.split("\n", 3)[2],
               content: null,
               a: 0.0,
               b: 0.0,

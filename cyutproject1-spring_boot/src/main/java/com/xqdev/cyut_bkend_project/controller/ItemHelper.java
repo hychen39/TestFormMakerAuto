@@ -23,6 +23,11 @@ public class ItemHelper {
         this.itemRepository = itemRepository;
     }
 
+    /**
+     * 將沒有 content 及 topic 的 item 轉成有 topic 的 item.
+     * @param itemEmptyQuesCont
+     * @return
+     */
     public Item convert(ItemEmptyQuesCont_I itemEmptyQuesCont){
         Item item = new Item();
         item.setId(itemEmptyQuesCont.getId());
